@@ -74,6 +74,7 @@
 
         .message.user {
             margin-left: auto;
+            text-align: end;
             background-color: #007bff;
             color: white;
         }
@@ -114,11 +115,13 @@
         </div>
     </div>
 </div>
+<script data-th-inline="javascript">
+    const chatUrl = [[${chatUrl}]];
+    const fileUploadUrl = [[${fileUploadUrl}]];
 
-<script>
     // Manage chat history and groups in local storage
     const LOCAL_STORAGE_KEY = "chatHistory";
-    const DEFAULT_GROUP_NAME = "Default";
+    const DEFAULT_GROUP_NAME = "Nice Chat";
     const chatHistory = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
 
     let currentGroup = DEFAULT_GROUP_NAME;
@@ -153,27 +156,32 @@
         });
     }
 
+    document.addEventListener('keydown', (event) => {
+        if (event.metaKey && event.keyCode === 13 /* Enter */) { // macOS Command + Enter
+            console.log('⌘+Enter pressed!');
+            sendMessage();
+        }
+    });
+
     // Send message to the API
     function sendMessage() {
         const text = $("#message-text").val().trim();
         if (!text) return;
 
-        chatHistory[currentGroup].push({sender: "user", text});
-        saveChatHistory();
-        renderMessages();
-        $("#message-text").val("");
-
         const loadingIndicator = $('<div class="message loading">Typing...</div>');
         $("#messages").append(loadingIndicator);
+        $("#message-text").val("");
 
         $.ajax({
-            url: `http://localhost:9292/chat?prompt=${encodeURIComponent(text)}`,
+            url: `${chatUrl}=${encodeURIComponent(text)}`,
             method: "GET",
             success: function (response) {
                 loadingIndicator.remove();
+                chatHistory[currentGroup].push({sender: "user", text});
                 chatHistory[currentGroup].push({sender: "bot", text: response});
                 saveChatHistory();
                 renderMessages();
+                $("#message-text").val("");
             },
             error: function () {
                 loadingIndicator.remove();
@@ -188,7 +196,7 @@
             title: 'Upload a File',
             input: 'file',
             inputAttributes: {
-                'accept': 'application/pdf, .xlsx, .txt, .docx',
+                'accept': 'application/pdf, .xlsx, .txt, .docx,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.pdf,.epub,.html,.htm,.xml,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.svg,.msg,.eml,.rtf,.csv,.tsv,.zip,.gz,.tar',
                 'aria-label': 'Upload a file'
             },
             showCancelButton: true,
@@ -203,13 +211,20 @@
                 const formData = new FormData();
                 formData.append("file", file);
                 return $.ajax({
-                    url: "http://localhost:9292/fileUpload",
+                    url: `${fileUploadUrl}`,
                     method: "POST",
                     data: formData,
                     processData: false,
                     contentType: false,
                     success: function () {
-                        Swal.fire('Success', 'File uploaded successfully!', 'success');
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'File uploaded successfully!',
+                            icon: 'success',
+                            timer: 3000, // 3000 milliseconds = 3 seconds
+                            showConfirmButton: false // Hides the "OK" button
+                        });
+
                     },
                     error: function () {
                         Swal.fire('Error', 'Failed to upload the file.', 'error');
@@ -231,10 +246,11 @@
             if (result.isConfirmed) {
                 // chatHistory[currentGroup] = [];
                 Object.keys(chatHistory).some(group => {
-                    if (group === currentGroup) {
+                    if (group !== 'Nice Chat' && group === currentGroup) {
                         delete chatHistory[group];
                         return true; // Breaks the iteration
                     }
+                    chatHistory[currentGroup] = []
                     return false; // Continue iteration
                 });
                 renderGroups()
@@ -252,14 +268,41 @@
 
     // Create a new group
     function createNewGroup() {
-        const groupName = prompt("Enter a name for the new group:");
-        if (groupName && !chatHistory[groupName]) {
-            chatHistory[groupName] = [];
-            saveChatHistory();
-            currentGroup = groupName;
-            renderGroups();
-            renderMessages();
-        }
+        Swal.fire({
+            title: 'Create New Group',
+            text: 'Enter a name for the new group:',
+            input: 'text', // Allows the user to input text
+            inputPlaceholder: 'Group Name',
+            showCancelButton: true, // Adds a cancel button
+            confirmButtonText: 'Create',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to enter a group name!';
+                }
+                return null; // Valid input
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const groupName = result.value;
+                if (groupName && !chatHistory[groupName]) {
+                    chatHistory[groupName] = [];
+                    saveChatHistory();
+                    currentGroup = groupName;
+                    renderGroups();
+                    renderMessages();
+                }
+                Swal.fire({
+                    title: 'Success',
+                    text: `Group "${groupName}" created successfully!`,
+                    icon: 'success',
+                    timer: 3000, // 3000 milliseconds = 3 seconds
+                    showConfirmButton: false // Hides the "OK" button
+                });
+            } else if (result.isDismissed) {
+                console.log('Group creation canceled');
+            }
+        });
     }
 
     // Switch to a different group
