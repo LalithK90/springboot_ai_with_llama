@@ -371,3 +371,47 @@ $("#send-btn").click(sendMessage);
 $("#file-upload-btn").click(uploadFile);
 $("#clear-group-chat").click(clearGroupChat);
 $("#new-group").click(createNewGroup);
+
+function weblinkUpload() {
+    Swal.fire({
+        title: 'Enter Website URL',
+        input: 'text',
+        inputLabel: 'Website URL',
+        inputPlaceholder: 'Enter the URL of the website',
+        showCancelButton: true,
+        confirmButtonText: 'Submit',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Please enter a URL!';
+            }
+            // Validate the URL format (simple validation)
+            const urlPattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+            if (!urlPattern.test(value)) {
+                return 'Please enter a valid URL!';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = result.value; // Get the entered URL
+
+            // Send the URL to the backend using AJAX (jQuery)
+            $.ajax({
+                url: `${webUploadUrl}${encodeURIComponent(url)}`, // Send URL as a query parameter
+                type: 'POST',
+                success: function(response) {
+                    // Handle the response from the backend if needed
+                    console.log('Response from backend:', response);
+                    Swal.fire('Success!', 'The website URL has been uploaded!', 'success');
+                },
+                error: function(xhr, status, error) {
+                    // Handle any errors
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'There was a problem uploading the URL.', 'error');
+                }
+            });
+        }
+    });
+}
+
+$("#uploadButton").click(weblinkUpload);

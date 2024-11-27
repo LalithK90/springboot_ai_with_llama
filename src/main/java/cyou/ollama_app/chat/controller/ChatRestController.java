@@ -49,4 +49,8 @@ public class ChatRestController {
   public String fileUpload(@RequestParam(value = "file", required = false) MultipartFile file) {
     return aiService.processFileTikaReader(file);
   }
+
+  @PostMapping("/webUpload")
+  public void webUpload(@RequestParam(value = "url", required = false) String url) {
+  }
 }

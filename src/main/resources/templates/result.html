@@ -33,10 +33,15 @@
     <div id="chat-window">
         <div id="messages"></div>
         <div id="message-input">
-            <button id="file-upload-btn" class="btn btn-light file-upload">
+            <button id="file-upload-btn" class="btn btn-outline-secondary file-upload">
                 <i class="fas fa-file-upload"></i>
+            </button>&nbsp;
+            <button id="uploadButton" class="btn btn-outline-primary">
+                <i class="fas fa-link"></i>
             </button>
+            &nbsp;
             <textarea id="message-text" class="form-control" rows="1" placeholder="Type a message..."></textarea>
+            &nbsp;
             <button id="send-btn" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -44,6 +49,7 @@
 <script data-th-inline="javascript">
     const chatUrl = [[${chatUrl}]];
     const fileUploadUrl = [[${fileUploadUrl}]];
+    const webUploadUrl = [[${webUploadUrl}]];
 </script>
 <script src="/js/result.js"></script>
 </body>

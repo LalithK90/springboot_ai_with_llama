@@ -19,6 +19,9 @@ public class AIController {
     model.addAttribute("fileUploadUrl",
         MvcUriComponentsBuilder
             .fromMethodName(ChatRestController.class, "fileUpload", "").toUriString());
+    model.addAttribute("webUploadUrl",
+        MvcUriComponentsBuilder
+            .fromMethodName(ChatRestController.class, "webUpload", "").toUriString());
     return "result";
   }
 

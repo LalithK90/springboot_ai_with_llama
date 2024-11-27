@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 @Slf4j
 public class LlamaAiService {
 
-
   private final VectorStore vectorStore;
   private final FileMetadataService fileMetadataService;
 
