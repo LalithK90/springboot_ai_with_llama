@@ -68,3 +68,20 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+compileJava {
+	options.compilerArgs += '-parameters'
+}
+
+compileTestJava {
+	options.compilerArgs += '-parameters'
+}
+
+tasks.named('bootJar') {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jar {
+	enabled = false
+}
+
