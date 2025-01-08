@@ -41,13 +41,14 @@ public class ChatRestController {
   @GetMapping("/chat")
   public String chat(@RequestParam(value = "prompt", required = false) String prompt) {
     System.out.println("received time" + LocalDateTime.now());
-    var respone =
+    var response =
         chatClient.prompt()
             .user(prompt)
             .call()
             .content();
     System.out.println("end time" + LocalDateTime.now());
-    return respone;
+    System.out.println(response);
+    return response;
   }
 
   @PostMapping("/fileUpload")
