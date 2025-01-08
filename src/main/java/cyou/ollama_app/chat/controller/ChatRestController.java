@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,10 +40,14 @@ public class ChatRestController {
 
   @GetMapping("/chat")
   public String chat(@RequestParam(value = "prompt", required = false) String prompt) {
-    return chatClient.prompt()
-        .user(prompt)
-        .call()
-        .content();
+    System.out.println("received time" + LocalDateTime.now());
+    var respone =
+        chatClient.prompt()
+            .user(prompt)
+            .call()
+            .content();
+    System.out.println("end time" + LocalDateTime.now());
+    return respone;
   }
 
   @PostMapping("/fileUpload")
